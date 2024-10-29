@@ -1,65 +1,38 @@
-schemaVersion: 2.1.0
+schemaVersion: 2.2.2
 metadata:
-  name: golang-workspace
-  version: 1.0.0
-  attributes:
-    alpha.build-context: src
-    alpha.build-dockerfile: Dockerfile
-
+  name: golang
 components:
-  - name: buildguidance
-    attributes:
-      tool: console-import
+  - name: tools
     container:
-      image: buildguidanceimage-placeholder
-      memoryLimit: "1024Mi"
-      endpoints:
-        - name: http-3001
-          targetPort: 3001
-
-  - name: runtime
-    container:
-      image: quay.io/upstream/devspace  # Your custom Go-based image
-      memoryLimit: "1024Mi"
+      image: quay.io/upstream/devspace
+      memoryRequest: '1Gi'
+      cpuLimit: '1'
+      cpuRequest: '0.5'
       mountSources: true
-      sourceMapping: /go/src/app  # Typical GOPATH location, adjust as needed
+      env:
+        - name: GOCACHE
+          # replicate the GOCACHE from the plugin, even though the cache is not shared
+          # between the two
+          value: /tmp/.cache
       endpoints:
-        - name: http-8080
+        - exposure: public
+          name: 'health-check'
+          protocol: https
           targetPort: 8080
-
 commands:
   - id: build
     exec:
-      component: runtime
-      commandLine: go build -o app
-      workingDir: /go/src/app
+      label: 1.Build
+      component: tools
+      workingDir: ${PROJECTS_ROOT}/golang-health-check
+      commandLine: go build
       group:
         kind: build
-        isDefault: true
-
   - id: run
     exec:
-      component: runtime
-      commandLine: ./app
-      workingDir: /go/src/app
+      label: 2.Run
+      component: tools
+      workingDir: ${PROJECTS_ROOT}/golang-health-check
+      commandLine: ./golang-health-check
       group:
         kind: run
-        isDefault: true
-
-  - id: debug
-    exec:
-      component: runtime
-      commandLine: dlv debug --headless --listen=:2345 --api-version=2
-      workingDir: /go/src/app
-      group:
-        kind: debug
-        isDefault: true
-
-  - id: test
-    exec:
-      component: runtime
-      commandLine: go test ./...
-      workingDir: /go/src/app
-      group:
-        kind: test
-        isDefault: true
