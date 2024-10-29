@@ -8,8 +8,8 @@ components:
   - name: custom-runtime
     container:
       image: quay.io/upstream/devspace
-      memoryLimit: 1024Mi
-      cpuLimit: 1
+      memoryLimit: "1024Mi"  # Memory and CPU limits must be strings
+      cpuLimit: "1"
       mountSources: true
       endpoints:
         - name: http
@@ -18,13 +18,13 @@ components:
           protocol: http
 
 commands:
-  - name: start-workspace
-    commandLine: "echo 'Workspace is starting...'"
-    component: custom-runtime
-    group:
-      kind: build
-      isDefault: true
-
+  - id: start-workspace  # Adding an "id" field to the command
+    exec:
+      commandLine: "echo 'Workspace is starting...'"
+      component: custom-runtime
+      group:
+        kind: build
+        isDefault: true
 projects:
   - name: sample-project
     source:
