@@ -1,33 +1,65 @@
 schemaVersion: 2.1.0
-
 metadata:
-  name: custom-workspace
-  description: A workspace using a custom image as the base.
+  name: golang-workspace
+  version: 1.0.0
+  attributes:
+    alpha.build-context: src
+    alpha.build-dockerfile: Dockerfile
 
 components:
-  - name: custom-runtime
+  - name: buildguidance
+    attributes:
+      tool: console-import
     container:
-      image: quay.io/upstream/devspace
-      memoryLimit: "1024Mi"  # Memory and CPU limits must be strings
-      cpuLimit: "1"
-      mountSources: true
+      image: buildguidanceimage-placeholder
+      memoryLimit: "1024Mi"
       endpoints:
-        - name: http
+        - name: http-3001
+          targetPort: 3001
+
+  - name: runtime
+    container:
+      image: quay.io/upstream/devspace  # Your custom Go-based image
+      memoryLimit: "1024Mi"
+      mountSources: true
+      sourceMapping: /go/src/app  # Typical GOPATH location, adjust as needed
+      endpoints:
+        - name: http-8080
           targetPort: 8080
-          exposure: public
-          protocol: http
 
 commands:
-  - id: start-workspace  # Adding an "id" field to the command
+  - id: build
     exec:
-      commandLine: "echo 'Workspace is starting...'"
-      component: custom-runtime
+      component: runtime
+      commandLine: go build -o app
+      workingDir: /go/src/app
       group:
         kind: build
         isDefault: true
-projects:
-  - name: sample-project
-    source:
-      type: git
-      location: "https://github.com/ahadrez/godevfile.git"
-      branch: main
+
+  - id: run
+    exec:
+      component: runtime
+      commandLine: ./app
+      workingDir: /go/src/app
+      group:
+        kind: run
+        isDefault: true
+
+  - id: debug
+    exec:
+      component: runtime
+      commandLine: dlv debug --headless --listen=:2345 --api-version=2
+      workingDir: /go/src/app
+      group:
+        kind: debug
+        isDefault: true
+
+  - id: test
+    exec:
+      component: runtime
+      commandLine: go test ./...
+      workingDir: /go/src/app
+      group:
+        kind: test
+        isDefault: true
