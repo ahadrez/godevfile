@@ -1,0 +1,33 @@
+schemaVersion: 2.1.0
+
+metadata:
+  name: custom-workspace
+  description: A workspace using a custom image as the base.
+
+components:
+  - name: custom-runtime
+    container:
+      image: quay.io/upstream/devspace
+      memoryLimit: 1024Mi
+      cpuLimit: 1
+      mountSources: true
+      endpoints:
+        - name: http
+          targetPort: 8080
+          exposure: public
+          protocol: http
+
+commands:
+  - name: start-workspace
+    commandLine: "echo 'Workspace is starting...'"
+    component: custom-runtime
+    group:
+      kind: build
+      isDefault: true
+
+projects:
+  - name: sample-project
+    source:
+      type: git
+      location: "https://github.com/ahadrez/godevfile.git"
+      branch: main
