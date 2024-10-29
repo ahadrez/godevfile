@@ -12,7 +12,7 @@ func main() {
 	http.HandleFunc("/api/greeting", greeting)
 	http.HandleFunc("/api/stop", stop)
 	http.HandleFunc("/api/health", health)
-	http.Handle("/", http.FileServer(assetFS()))
+	//http.Handle("/", http.FileServer(assetFS()))
 	fmt.Println("Web server running on port 8080")
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
