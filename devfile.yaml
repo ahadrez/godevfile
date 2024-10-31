@@ -4,7 +4,7 @@ metadata:
 components:
   - name: tools
     container:
-      image: quay.io/upstream/devspace
+      image: quay.io/upstream/devspace:1
       memoryRequest: '1Gi'
       cpuLimit: '1'
       cpuRequest: '0.5'
