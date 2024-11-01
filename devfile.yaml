@@ -43,3 +43,11 @@ commands:
       commandLine: ./golang-health-check
       group:
         kind: run
+  - id: disable-ssl-verification
+    exec:
+      label: Disable SSL Verification
+      component: tools
+      workingDir: /
+      commandLine: git config --global http.sslVerify false
+      group:
+        kind: build
