@@ -19,6 +19,13 @@ components:
           name: 'health-check'
           protocol: https
           targetPort: 8080
+projects:
+  - name: godev
+    git:
+      remotes:
+        origin: 'https://github.com/ahadrez/godev.git'
+      checkoutFrom:
+        revision: main
 commands:
   - id: build
     exec:
